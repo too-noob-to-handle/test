@@ -224,7 +224,7 @@ class MirrorListener:
                     source_link = message_args[1]
                     if is_magnet(source_link):
                         link = telegraph.create_page(
-                        title='Helios-Mirror Source Link',
+                        title='Bangladesh-Hoarding Source Link',
                         content=source_link,
                     )["path"]
                         buttons.buildbutton(f"🔗 Source Link", f"https://telegra.ph/{link}")
@@ -306,7 +306,7 @@ class MirrorListener:
                     mesg = message_args[1]
                     if is_magnet(mesg):
                         link = telegraph.create_page(
-                            title='Helios-Mirror Source Link',
+                            title='Bangladesh-Hoarding Source Link',
                             content=mesg,
                         )["path"]
                         buttons.buildbutton(f"🔗 Source Link", f"https://telegra.ph/{link}")
@@ -328,7 +328,7 @@ class MirrorListener:
                         source_link = reply_text.strip()
                         if is_magnet(source_link):
                             link = telegraph.create_page(
-                                title='Helios-Mirror Source Link',
+                                title='Bangladesh-Hoarding Source Link',
                                 content=source_link,
                             )["path"]
                             buttons.buildbutton(f"🔗 Source Link", f"https://telegra.ph/{link}")

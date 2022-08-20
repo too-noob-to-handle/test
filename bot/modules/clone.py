@@ -10,7 +10,7 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
 from bot import bot, dispatcher, LOGGER, CLONE_LIMIT, STOP_DUPLICATE, download_dict, download_dict_lock, Interval, BOT_PM, MIRROR_LOGS, AUTO_DELETE_UPLOAD_MESSAGE_DURATION
-from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_gdrive_link, is_gdtot_link, new_thread, is_appdrive_link
+from bot.helper.ext_utils.bot_utils import get_readable_file_size, new_thread, is_appdrive_link
 from bot.helper.mirror_utils.download_utils.direct_link_generator import gdtot, appdrive
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 from telegram import InlineKeyboardMarkup, ParseMode
@@ -56,25 +56,24 @@ def _clone(message, bot, multi=0):
             tag = f"@{reply_to.from_user.username}"
         else:
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-    is_gdtot = is_gdtot_link(link)
-    is_appdrive = is_appdrive_link(link)
-    if is_gdtot:
+     if 'new.gdtot' in link:
         try:
-            msg = sendMessage(f"Processing: <code>{link}</code>", bot, message)
-            link = gdtot(link)
-            deleteMessage(bot, msg)
-        except DirectDownloadLinkException as e:
-            deleteMessage(bot, msg)
-            return sendMessage(str(e), bot, message)
-    if is_appdrive:
-        msg = sendMessage(f"Processing: <code>{link}</code>", bot, message)
+             msg = sendMessage(f"Detected GdTtot Link Please Wait:- \n<code>{link}</code>", context.bot, message)
+             link = GdTot().download(link)
+             deleteMessage(bot, msg)
+         except DirectDownloadLinkException as e:
+             deleteMessage(bot, msg)
+             return sendMessage(str(e), bot, message)
+
+     if 'appdrive' in link:
         try:
-            apdict = appdrive(link)
-            link = apdict.get('gdrive_link')
-            deleteMessage(bot, msg)
-        except DirectDownloadLinkException as e:
-            deleteMessage(bot, msg)
-            return sendMessage(str(e), bot, message)
+             msg = sendMessage(f"Detected Appdrive Link Please Wait:- \n<code>{link}</code>", context.bot, message)
+             link = AppDrive().download(link)
+             deleteMessage(bot, msg)
+         except DirectDownloadLinkException as e:
+             deleteMessage(bot, msg)
+             return sendMessage(str(e), bot, message)
+             
     if is_gdrive_link(link):
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)

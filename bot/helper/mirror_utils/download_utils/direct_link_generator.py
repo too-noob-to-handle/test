@@ -18,12 +18,6 @@ from cfscrape import create_scraper
 from bs4 import BeautifulSoup
 from base64 import standard_b64encode
 from lxml import etree
-from time import sleep
-import requests
-import math
-import re
-
-
 
 from bot import LOGGER, UPTOBOX_TOKEN, CRYPT, APPDRIVE_EMAIL, APPDRIVE_PASS
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -105,7 +99,7 @@ def uptobox(url: str) -> str:
     """ Uptobox direct link generator
     based on https://github.com/jovanzers/WinTenCermin """
     try:
-        link = re.findall(r'\bhttps?://.*uptobox\.com\S+', url)[0]
+        link = re_findall(r'\bhttps?://.*uptobox\.com\S+', url)[0]
     except IndexError:
         raise DirectDownloadLinkException("No Uptobox links found\n")
     if UPTOBOX_TOKEN is None:
@@ -113,32 +107,15 @@ def uptobox(url: str) -> str:
         dl_url = link
     else:
         try:
-            link = re.findall(r'\bhttp?://.*uptobox\.com/dl\S+', url)[0]
+            link = re_findall(r'\bhttp?://.*uptobox\.com/dl\S+', url)[0]
             dl_url = link
         except:
-            file_id = re.findall(r'\bhttps?://.*uptobox\.com/(\w+)', url)[0]
-            file_link = f'https://uptobox.com/api/link?token={UPTOBOX_TOKEN}&file_code={file_id}'
-            req = requests.get(file_link)
+            file_id = re_findall(r'\bhttps?://.*uptobox\.com/(\w+)', url)[0]
+            file_link = 'https://uptobox.com/api/link?token=%s&file_code=%s' % (UPTOBOX_TOKEN, file_id)
+            req = rget(file_link)
             result = req.json()
-            if result['message'].lower() == 'success':
-                dl_url = result['data']['dlLink']
-            elif result['message'].lower() == 'waiting needed':
-                waiting_time = result["data"]["waiting"] + 1
-                waiting_token = result["data"]["waitingToken"]
-                sleep(waiting_time)
-                req2 = requests.get(f"{file_link}&waitingToken={waiting_token}")
-                result2 = req2.json()
-                dl_url = result2['data']['dlLink']
-            elif result['message'].lower() == 'you need to wait before requesting a new download link':
-                cooldown = divmod(result['data']['waiting'], 60)
-                raise DirectDownloadLinkException(f"ERROR: Uptobox cooling down {cooldown[0]} minitite {cooldown[1]} seconds.")
-            else:
-                LOGGER.info(f"UPTOBOX_ERROR: {result}")
-                raise DirectDownloadLinkException(f"ERROR: {result['message']}")
+            dl_url = result['data']['dlLink']
     return dl_url
- 
-     
-      
 
 def mediafire(url: str) -> str:
     """ MediaFire direct link generator """
@@ -386,98 +363,152 @@ def krakenfiles(page_link: str) -> str:
     else:
         raise DirectDownloadLinkException(
             f"Failed to acquire download URL from kraken for : {page_link}")
+        
+import requests
+import random
+import re
 
-def gdtot(url: str) -> str:
-    """ Gdtot google drive link generator
-    By https://github.com/xcscxr """
+APPDRIVE_ACCOUNTS = [
+  {
+    "email":"gdtot1@brccollege.edu.in",
+    "password":"gdtot1@brccollege.edu.in"
+  },
 
-    if CRYPT is None:
-        raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
+  {
+    "email":"gdtot2@brccollege.edu.in",
+    "password":"gdtot2@brccollege.edu.in"
+  },
 
-    match = re_findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
+  {
+    "email":"gdtot3@brccollege.edu.in",
+    "password":"gdtot3@brccollege.edu.in"
+  },
 
-    with rsession() as client:
-        client.cookies.update({'crypt': CRYPT})
-        client.get(url)
-        res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
-    matches = re_findall('gd=(.*?)&', res.text)
+  {
+    "email":"gdtot4@brccollege.edu.in",
+    "password":"gdtot4@brccollege.edu.in"
+  },
+
+  {
+    "email":"gdtot5@brccollege.edu.in",
+    "password":"gdtot5@brccollege.edu.in"
+  },
+  
+]
+
+
+class AppDrive:
+  def __init__(self, baseURL:str = "https://appdrive.info") -> None:
+    self.loginData = random.choice(APPDRIVE_ACCOUNTS)
+  
+    self.keyRegex = '"key",\s+"(.*?)"'
+    self.BaseURL = baseURL
+    self.reqSes = requests.Session()
+    self.headers = {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+      'referer': self.BaseURL,
+  }
+    self.reqSes.headers.update(self.headers)
+  
+  def login(self) -> bool:
+    login_ = self.reqSes.post(f'{self.BaseURL}/login', data=self.loginData)
+    if login_.cookies.get("MD"):
+      return True
+    return False
+  
+  def download(self, url:str) -> str:
+
+    if not self.login():
+      raise Exception("Falied to login Please try again")
+
     try:
-        decoded_id = b64decode(str(matches[0])).decode('utf-8')
+      res = self.reqSes.get(url)
+      key = re.findall(self.keyRegex, res.text)[0]
     except:
-        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found or user limit exceeded!")
-    return f'https://drive.google.com/open?id={decoded_id}'
+      raise Exception("URl is Inavalid or Failed to get Key Value")
 
-account = {
-    'email': APPDRIVE_EMAIL,
-    'passwd': APPDRIVE_PASS
-    }
-def account_login(client, url, email, password):
-    """ AppDrive google drive link generator
-    By https://github.com/xcscxr """
-
-    if APPDRIVE_EMAIL is None:
-        raise DirectDownloadLinkException("ERROR: Appdrive  Email Password not provided")
-
-    data = {
-        'email': email,
-        'password': password
-    }
-    client.post(f'https://{urlparse(url).netloc}/login', data=data)
-
-def gen_payload(data, boundary=f'{"-"*6}_'):
-    data_string = ''
-    for item in data:
-        data_string += f'{boundary}\r\n'
-        data_string += f'Content-Disposition: form-data; name="{item}"\r\n\r\n{data[item]}\r\n'
-    data_string += f'{boundary}--\r\n'
-    return data_string
-
-def parse_info(data):
-    info = re_findall(r'>(.*?)<\/li>', data)
-    info_parsed = {}
-    for item in info:
-        kv = [s.strip() for s in item.split(':', maxsplit=1)]
-        info_parsed[kv[0].lower()] = kv[1]
-    return info_parsed
-
-def appdrive(url: str) -> str:
-    client = rsession()
-    client.headers.update({
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
-    })
-    account_login(client, url, account['email'], account['passwd'])
-    res = client.get(url)
-    key = re_findall(r'"key",\s+"(.*?)"', res.text)[0]
-    ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
-    info_parsed = parse_info(res.text)
-    info_parsed['error'] = False
-    info_parsed['link_type'] = 'login'  # direct/login
-    headers = {
-        "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
-    }
     data = {
         'type': 1,
         'key': key,
         'action': 'original'
     }
-    if len(ddl_btn):
-        info_parsed['link_type'] = 'direct'
-        data['action'] = 'direct'
     while data['type'] <= 3:
         try:
-            response = client.post(url, data=gen_payload(data), headers=headers).json()
+            res = self.reqSes.post(url, data=data).json()
             break
         except: data['type'] += 1
-    if 'url' in response:
-        info_parsed['gdrive_link'] = response['url']
-    elif 'error' in response and response['error']:
-        info_parsed['error'] = True
-        info_parsed['error_message'] = response['message']
-    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
-        res = client.get(info_parsed['gdrive_link'])
-        drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
-    if not info_parsed['error']:
-        return info_parsed
+    
+    if res.get('url'):
+      return res.get('url')
     else:
-        raise DirectDownloadLinkException(f"{info_parsed['error_message']}")
+      raise Exception(str(res))
+
+if __name__ == "__main__":
+  print(AppDrive().download("https://appdrive.info/file/feff0b041a15d41fa714"))
+  
+  
+import requests
+import random
+import re
+from base64 import b64decode
+from urllib.parse import urlparse, parse_qs
+
+GDTOT_COOKIES = [
+    "NkVjQ0p1VFJ5cWFsdmZDOWI4bCszTjFVVHloU052Mm9pNGdyeUd4alJGWT0%3D",
+    "Z0o0anBxemZUQUxJekQ4eWhBZ21VT25tdjNSYnFTYlUxb2V2cWZaVjY0ST0%3D",
+    "Rnp2NWtkRURiZzJ3UEdEMm93MHRRSk12T0NNaExQVzcvb1pGa2lUNzZOQT0%3D",
+    "TW94QVNXMUNMZjdqa3JXQi8vNFdUTW8vcUZNNHp0enJOSGVZZUh2bm5rcz0%3D",
+    "TDVpOWtjR2RGSDFDVmxlMDFKZElvV1pUUGJYL24zeHJXK3lNY1lOcXQzVT0%3D",
+]
+
+class GdTot:
+    def __init__(self, baseURL = "https://new2.gdtot.sbs") -> None:
+        self.loginData = random.choice(GDTOT_COOKIES)
+        self.gdRegex = 'gd=(.*?)&'
+        self.BaseURL = baseURL
+        self.reqSes = requests.Session()
+        self.headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'referer': self.BaseURL,
+        'crypt':self.loginData
+        }
+        self.reqSes.headers.update(self.headers)
+        self.reqSes.cookies.update({'crypt': self.loginData})
+
+    def login(self) -> bool:
+        login_ = self.reqSes.post(f'{self.BaseURL}')
+        if "/login.php?action=logout" in login_.text:
+            self.reqSes.cookies.update({"PHPSESSID":login_.cookies.get('PHPSESSID')})
+            return True
+        return False
+
+    def download(self, url: str) -> str:
+
+        self.baseURL = "https://{domain}".format(domain=urlparse(url).netloc)
+        self.reqSes.headers.update({"referer":url})
+        # Extracting Domain base url from URL path itself so we don't have to edit it again
+
+        if not self.login():
+            raise Exception("Falied to login Please try again")
+        try:
+            id = url.split('/')[-1]
+            res = self.reqSes.get(f"{self.BaseURL}/dld?id={id}")
+            urll = re.findall('URL=(.*?)\"', res.text)[0]
+            qs = parse_qs(urlparse(urll).query)
+            # getGDUrl = re.findall(self.gdRegex, res.text)
+            # print(getGDUrl)
+            if qs['gd'][0] == 'false':
+                err_msg = qs['msgx'][0]
+                raise Exception(err_msg)
+            else:
+                gdUrl = b64decode(str(qs['gd'])).decode('utf-8')
+                return f'https://drive.google.com/file/d/{gdUrl}/view'
+        except Exception as err:
+            raise Exception(f"Failed to get download url Please try again - {str(err)}")
+                    
+
+if __name__ == "__main__":
+    print(GdTot().download("https://new2.gdtot.sbs/file/161529855"))
+    # print(GdTot().download("https://new.gdtot.nl/file/20395706860"))

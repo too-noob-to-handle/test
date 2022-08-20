@@ -398,7 +398,7 @@ APPDRIVE_ACCOUNTS = [
 
 
 class AppDrive:
-  def __init__(self, baseURL:str = "https://appdrive.in") -> None:
+  def __init__(self, baseURL:str = "https://appdrive.info") -> None:
     self.loginData = random.choice(APPDRIVE_ACCOUNTS)
   
     self.keyRegex = '"key",\s+"(.*?)"'
@@ -446,7 +446,7 @@ class AppDrive:
 
 
 if __name__ == "__main__":
-  print(AppDrive().download("https://appdrive.in/file/feff0b041a15d41fa714"))
+  print(AppDrive().download("https://appdrive.info/file/feff0b041a15d41fa714"))
   
 import requests
 import random
@@ -463,7 +463,7 @@ GDTOT_COOKIES = [
 ]
 
 class GdTot:
-    def __init__(self, baseURL = "https://new.gdtot.nl") -> None:
+    def __init__(self, baseURL = "https://new2.gdtot.sbs") -> None:
         self.loginData = random.choice(GDTOT_COOKIES)
         self.gdRegex = 'gd=(.*?)&'
         self.BaseURL = baseURL

@@ -129,12 +129,12 @@ def _clone(message, bot, multi=0):
             msg = sendMarkup(result + cc, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
-        if new2.gdtot:
-            gd.deletefile(link)
-        elif appdrive:
-            if apdict.get('link_type') == 'login':
-                LOGGER.info(f"Deleting: {link}")
-                gd.deletefile(link)
+ #       if new2.gdtot:
+ #           gd.deletefile(link)
+ #       elif appdrive:
+ #           if apdict.get('link_type') == 'login':
+ #               LOGGER.info(f"Deleting: {link}")
+ #               gd.deletefile(link)
         if MIRROR_LOGS:
             try:
                 for chatid in MIRROR_LOGS:

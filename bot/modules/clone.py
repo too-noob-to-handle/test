@@ -56,7 +56,7 @@ def _clone(message, bot, multi=0):
             tag = f"@{reply_to.from_user.username}"
         else:
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-     if 'new.gdtot' in link:
+     if 'new2.gdtot' in link:
         try:
              msg = sendMessage(f"Detected GdTtot Link Please Wait:- \n<code>{link}</code>", context.bot, message)
              link = GdTot().download(link)
@@ -129,9 +129,9 @@ def _clone(message, bot, multi=0):
             msg = sendMarkup(result + cc, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
-        if is_gdtot:
+        if new2.gdtot:
             gd.deletefile(link)
-        elif is_appdrive:
+        elif appdrive:
             if apdict.get('link_type') == 'login':
                 LOGGER.info(f"Deleting: {link}")
                 gd.deletefile(link)

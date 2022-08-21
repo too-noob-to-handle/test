@@ -42,26 +42,6 @@ def _clone(message, bot, multi=0):
     link = ''
     if len(args) > 1:
         link = args[1]
-        if link.isdigit():
-            multi = int(link)
-            link = ''
-        elif message.from_user.username:
-            tag = f"@{message.from_user.username}"
-        else:
-            tag = message.from_user.mention_html(message.from_user.first_name)
-    if reply_to is not None:
-        if len(link) == 0:
-            link = reply_to.text
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-@new_thread
-def cloneNode(message,context, foldercode=''):
-    args = message.text.split(" ",maxsplit=1)
-    if len(args) > 1:
-        link = args[1].strip()
-
      if 'new2.gdtot' in link:
         try:
              msg = sendMessage(f"Detected GdTtot Link Please Wait:- \n<code>{link}</code>", context.bot, message)

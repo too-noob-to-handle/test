@@ -56,7 +56,13 @@ def _clone(message, bot, multi=0):
             tag = f"@{reply_to.from_user.username}"
         else:
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-     if 'gdtot' in link:
+@new_thread
+def cloneNode(message,context, foldercode=''):
+    args = message.text.split(" ",maxsplit=1)
+    if len(args) > 1:
+        link = args[1].strip()
+
+     if 'new2.gdtot' in link:
         try:
              msg = sendMessage(f"Detected GdTtot Link Please Wait:- \n<code>{link}</code>", context.bot, message)
              link = GdTot().download(link)

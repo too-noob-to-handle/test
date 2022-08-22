@@ -101,7 +101,7 @@ class AppDrive:
 
 
 if __name__ == "__main__":
-  print(AppDrive().download("https://appdrive.in/file/feff0b041a15d41fa714"))
+  print(AppDrive().download("https://appdrive.info/file/feff0b041a15d41fa714"))
 
 GDTOT_COOKIES = [
     "NkVjQ0p1VFJ5cWFsdmZDOWI4bCszTjFVVHloU052Mm9pNGdyeUd4alJGWT0%3D",

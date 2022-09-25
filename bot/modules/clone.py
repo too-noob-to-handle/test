@@ -172,9 +172,54 @@ def _clone(message, bot, multi=0):
     link = ''
     if len(args) > 1:
         link = args[1]
+        if 'new.gdtot' in link:
+            try:
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
+                link = GdTot().download(link)
+                deleteMessage(bot, msg)
+            except Exception as e:
+                deleteMessage(bot, msg)
+                return sendMessage(str(e), bot, message)
+
+        if 'new1.gdtot' in link:
+            try:
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
+                link = GdTot().download(link)
+                deleteMessage(bot, msg)
+            except Exception as e:
+                deleteMessage(bot, msg)
+                return sendMessage(str(e), bot, message)
+
         if 'new2.gdtot' in link:
             try:
-                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙 𝙋𝙡𝙚𝙖𝙨𝙚 𝙒𝙖𝙞𝙩:- \n<code>{link}</code>", bot, message)
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
+                link = GdTot().download(link)
+                deleteMessage(bot, msg)
+            except Exception as e:
+                deleteMessage(bot, msg)
+                return sendMessage(str(e), bot, message)
+
+        if 'new3.gdtot' in link:
+            try:
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
+                link = GdTot().download(link)
+                deleteMessage(bot, msg)
+            except Exception as e:
+                deleteMessage(bot, msg)
+                return sendMessage(str(e), bot, message)
+              
+        if 'new4.gdtot' in link:
+            try:
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
+                link = GdTot().download(link)
+                deleteMessage(bot, msg)
+            except Exception as e:
+                deleteMessage(bot, msg)
+                return sendMessage(str(e), bot, message)
+              
+        if 'new5.gdtot' in link:
+            try:
+                msg = sendMessage(f"⚠️ 𝙂𝙙𝙏𝙩𝙤𝙩 𝙇𝙞𝙣𝙠 𝘿𝙚𝙩𝙚𝙘𝙩𝙚𝙙:- \n<code>{link}</code>", bot, message)
                 link = GdTot().download(link)
                 deleteMessage(bot, msg)
             except Exception as e:
